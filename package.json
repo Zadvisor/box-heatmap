@@ -1,0 +1,13 @@
+{
+  "name": "box-heatmap",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "sync": "node scripts/sync.mjs",
+    "backfill": "node scripts/backfill.mjs",
+    "build": "node scripts/sync.mjs --build",
+    "preview": "npx --yes serve site"
+  }
+}
