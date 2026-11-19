@@ -120,6 +120,13 @@
   th { color: var(--ink-2); font-weight: 600; font-size: 12px; position: sticky; top: 0; background: var(--surface); }
   th button { all: unset; cursor: pointer; }
   .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .ebay { padding: 20px; margin-top: 24px; }
+  .ebay p { color: var(--ink-2); margin: 0 0 12px; max-width: 780px; }
+  .erow { display: grid; grid-template-columns: 1fr auto auto auto; gap: 14px; align-items: baseline; padding: 9px 0; border-top: 1px solid var(--line); }
+  .erow small { color: var(--ink-3); font-weight: 400; }
+  .erow .ct { color: var(--ink-3); font-size: 12px; }
+  .erow .pr { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+  @media (max-width: 640px) { .erow { grid-template-columns: 1fr auto; gap: 2px 12px; } }
   footer { color: var(--ink-3); font-size: 12px; margin-top: 24px; max-width: 860px; }
   [hidden] { display: none !important; }
   @media (max-width: 640px) { .bar { position: static; } .tier h3 { flex-wrap: wrap; } main { padding: 24px 14px 40px; } .bar { margin: 0 -14px 16px; padding: 8px 14px; } h1 { font-size: 27px; } .legend { margin-left: 0; } .breadth { margin-left: 0; } section.game { padding: 14px; } }
@@ -150,6 +157,7 @@
   <div class="movers" id="movers"></div>
   <div id="map"></div>
   <section class="card" id="tableWrap" hidden><div style="overflow:auto"><table id="table"></table></div></section>
+  <section class="card ebay" id="ebay" hidden></section>
 
   <footer>
     Prices are TCGplayer market prices, republished daily by <a href="https://tcgcsv.com/">TCGCSV</a>. Thank you, TCGCSV.
@@ -165,7 +173,7 @@ const TIERS = [['new', 'Newly Released', 'past 365 days and preorders'], ['moder
 const CAPS = { d1: 4, d7: 8, d30: 16 };            // % move that reaches the darkest step
 const LABEL = { d1: '1-day', d7: '7-day', d30: '30-day' };
 const state = { period: 'd1', game: 'all', size: 'price', view: 'map', sort: ['price', -1] };
-let DATA, GNAME;
+let DATA, GNAME, EBAY;
 
 const $ = s => document.querySelector(s);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -354,8 +362,28 @@ function renderTable(boxes) {
   }
 }
 
+// eBay listings live in their own section, apart from TCGplayer data. eBay's API terms allow
+// listing data to be shown for at most six hours, with its age disclosed.
+function renderEbay() {
+  const sec = $('#ebay'), age = EBAY ? (Date.now() - Date.parse(EBAY.fetchedAt)) / 36e5 : Infinity;
+  const rows = age <= 6 ? EBAY.items.filter(i => state.game === 'all' || i.game === state.game) : [];
+  sec.hidden = !rows.length; if (!rows.length) return;
+  sec.replaceChildren();
+  const head = el('div', 'ghead'), hrs = Math.floor(age);
+  head.append(el('h2', '', 'On eBay now'), el('span', 'meta', `fetched ${hrs < 1 ? 'under an hour' : hrs + (hrs === 1 ? ' hour' : ' hours')} ago`));
+  sec.append(head, el('p', '', `Lowest verified asking price on eBay for ${rows.length} ${rows.length === 1 ? 'box' : 'boxes'} with no TCGplayer market price. These are asking prices, not sales. Verified means a new, fixed-price listing whose title matches the sealed box, from a seller with at least 98% positive feedback.`));
+  for (const i of rows.sort((a, b) => a.game.localeCompare(b.game) || b.total - a.total)) {
+    const row = el('div', 'erow'), nm = el('span', 'nm', i.name + ' '), pr = el('span', 'pr', money(i.ask) + ' ');
+    nm.append(el('small', '', GNAME[i.game]));
+    pr.append(el('small', '', i.shipping == null ? '+ shipping' : i.shipping ? `+ ${money(i.shipping)} shipping` : 'free shipping'));
+    const a = el('a', '', 'View on eBay'); a.href = i.url; a.target = '_blank'; a.rel = 'noopener';
+    row.append(nm, el('span', 'ct', `${i.listings} verified ${i.listings === 1 ? 'listing' : 'listings'}`), pr, a);
+    sec.append(row);
+  }
+}
+
 function render() {
-  hideTip(); legend();
+  hideTip(); legend(); renderEbay();
   const boxes = DATA.boxes.slice();
   $('#map').hidden = state.view !== 'map'; $('#tableWrap').hidden = state.view !== 'table';
   renderMovers(boxes);
@@ -374,6 +402,7 @@ async function load() {
   // Preview builds inline the data; the deployed site reads the nightly data.json.
   DATA = window.__DATA__ || await fetch('data.json', { cache: 'no-cache' }).then(r => r.json());
   GNAME = Object.fromEntries(DATA.games.map(g => [g.key, g.name]));
+  EBAY = window.__EBAY__ || await fetch('ebay.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null);
   const asOf = new Date(DATA.asOf.replace(/\+0000$/, 'Z'));
   const priced = DATA.boxes.filter(b => b.price != null).length;
   $('#sub').textContent = `${DATA.boxes.length} sealed boxes, ${priced} with a market price · as of ${asOf.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })} · updates once a day`;
