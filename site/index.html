@@ -7,104 +7,154 @@
 <style>
   :root {
     color-scheme: light;
-    --page: #f5f4f1; --surface: #fcfcfb; --line: #e2e1dc;
+    --page: #f3f2ee; --surface: #fcfcfb; --raised: #ffffff; --line: #e4e2dc; --gap: #fcfcfb;
     --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #7b7a75;
-    --flat: #f0efec; --none: #fcfcfb;
+    --flat: #e9e8e3; --none: #f6f5f1;
     --up-1: #b7d3f6; --up-2: #5598e7; --up-3: #1c5cab;
     --dn-1: #f6c4c1; --dn-2: #e2645e; --dn-3: #a52c2c;
-    --focus: #0b0b0b;
+    --shadow: 0 1px 2px rgba(20,20,15,.05), 0 8px 24px rgba(20,20,15,.06);
   }
   @media (prefers-color-scheme: dark) {
     :root:where(:not([data-theme="light"])) {
       color-scheme: dark;
-      --page: #111110; --surface: #1a1a19; --line: #32322f;
+      --page: #0e0e0d; --surface: #1a1a19; --raised: #222220; --line: #2e2e2b; --gap: #1a1a19;
       --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #94938b;
-      --flat: #383835; --none: #1a1a19;
-      --up-1: #184f95; --up-2: #2a78d6; --up-3: #86b6ef;
-      --dn-1: #7c2626; --dn-2: #cf4a45; --dn-3: #f1a19d;
-      --focus: #f0efec;
+      --flat: #383835; --none: #232321;
+      --up-1: #1b3d68; --up-2: #2264b8; --up-3: #4a96f2;
+      --dn-1: #5e2523; --dn-2: #a83632; --dn-3: #ea5a52;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
     }
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --page: #111110; --surface: #1a1a19; --line: #32322f;
+    --page: #0e0e0d; --surface: #1a1a19; --raised: #222220; --line: #2e2e2b; --gap: #1a1a19;
     --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #94938b;
-    --flat: #383835; --none: #1a1a19;
-    --up-1: #184f95; --up-2: #2a78d6; --up-3: #86b6ef;
-    --dn-1: #7c2626; --dn-2: #cf4a45; --dn-3: #f1a19d;
-    --focus: #f0efec;
+    --flat: #383835; --none: #232321;
+    --up-1: #1b3d68; --up-2: #2264b8; --up-3: #4a96f2;
+    --dn-1: #5e2523; --dn-2: #a83632; --dn-3: #ea5a52;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--page); color: var(--ink);
-    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 1280px; margin: 0 auto; padding: 24px 20px 48px; }
-  h1 { font-size: 22px; margin: 0 0 2px; letter-spacing: -0.01em; }
-  .sub { color: var(--ink-2); margin: 0 0 16px; }
-  .bar { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; margin-bottom: 16px; }
-  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
-  .seg button { border: 0; background: none; color: var(--ink-2); font: inherit; padding: 6px 12px; cursor: pointer; }
-  .seg button + button { border-left: 1px solid var(--line); }
-  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
-  .seg button:focus-visible, .tile:focus-visible, th button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  .lab { color: var(--ink-3); font-size: 12px; margin-right: 6px; }
-  .legend { display: flex; align-items: center; gap: 6px; margin-left: auto; color: var(--ink-2); font-size: 12px; }
-  .legend i { display: block; width: 26px; height: 12px; }
-  .legend .none { border: 1px dashed var(--ink-3); background: var(--none); }
-  .notice { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; color: var(--ink-2); margin-bottom: 16px; }
-  section.game { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-  section.game h2 { font-size: 16px; margin: 0 0 12px; }
-  .tier { margin-bottom: 14px; }
-  .tier:last-child { margin-bottom: 0; }
-  .tier h3 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); margin: 0 0 6px; }
-  .tier h3 span { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--ink-3); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); grid-auto-rows: 58px; grid-auto-flow: dense; gap: 2px; }
-  .tile { border: 0; border-radius: 4px; padding: 6px 8px; text-align: left; font: inherit; cursor: pointer;
-    display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; text-decoration: none; min-width: 0; }
-  .tile .n { font-size: 11px; line-height: 1.2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .tile .v { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .tile.s2 { grid-column: span 2; } .tile.s3 { grid-column: span 2; grid-row: span 2; }
-  .tile.none { background: var(--none); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink-3); }
-  .empty { color: var(--ink-3); font-size: 13px; padding: 4px 0; }
-  #tip { position: fixed; z-index: 10; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line);
-    border-radius: 10px; padding: 10px 12px; width: 260px; box-shadow: 0 6px 24px rgba(0,0,0,.18); display: none; font-size: 12px; }
-  #tip b { display: block; font-size: 13px; }
-  #tip .m { color: var(--ink-2); margin-bottom: 6px; }
-  #tip dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 0; }
+    font: 14px/1.45 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 1320px; margin: 0 auto; padding: 36px 24px 56px; }
+  a { color: inherit; }
+  button { font: inherit; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; margin-bottom: 22px; }
+  .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  h1 { font-size: 34px; line-height: 1.1; letter-spacing: -0.03em; margin: 4px 0 6px; font-weight: 700; }
+  .sub { color: var(--ink-2); margin: 0; }
+  .theme { border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+  .theme:hover { color: var(--ink); }
+
+  .bar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center;
+    margin: 0 -24px 20px; padding: 10px 24px; background: color-mix(in srgb, var(--page) 86%, transparent); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line); }
+  .ctl { display: flex; align-items: center; gap: 8px; }
+  .lab { color: var(--ink-3); font-size: 12px; }
+  .seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 10px; background: var(--flat); }
+  .seg button { border: 0; background: none; color: var(--ink-2); padding: 5px 11px; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+  .seg button:hover { color: var(--ink); }
+  .seg button[aria-pressed="true"] { background: var(--raised); color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.14); }
+  .legend { display: flex; align-items: center; gap: 8px; margin-left: auto; color: var(--ink-2); font-size: 12px; }
+  .legend .ramp { display: flex; border-radius: 4px; overflow: hidden; }
+  .legend i { display: block; width: 24px; height: 10px; }
+  .legend .none { width: 18px; border-radius: 3px; background: var(--none); box-shadow: inset 0 0 0 1px var(--ink-3); margin-left: 8px; }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+  .movers { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 16px; }
+  .movers .card { padding: 16px 18px 10px; }
+  .card h2 { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 8px; }
+  .mv { display: grid; grid-template-columns: 10px 1fr auto auto; gap: 10px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line); text-decoration: none; }
+  .mv:first-of-type { border-top: 0; }
+  .mv:hover .nm { text-decoration: underline; }
+  .mv .dot { width: 10px; height: 10px; border-radius: 3px; }
+  .mv .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mv .gm { color: var(--ink-3); font-size: 12px; }
+  .mv .pr { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .mv .ch { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 64px; text-align: right; }
+  .quiet { color: var(--ink-3); padding: 8px 0 10px; }
+
+  section.game { padding: 20px; margin-bottom: 16px; }
+  .ghead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-bottom: 14px; }
+  .ghead h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; text-transform: none; color: var(--ink); margin: 0; }
+  .ghead .meta { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .breadth { display: flex; align-items: center; gap: 8px; margin-left: auto; color: var(--ink-2); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .breadth .track { display: flex; width: 150px; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px; }
+  .breadth .track i { display: block; height: 100%; }
+  .tier { margin-top: 16px; }
+  .tier h3 { display: flex; align-items: baseline; gap: 8px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); margin: 0 0 8px; }
+  .tier h3 span { font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 12px; color: var(--ink-3); }
+  .map { position: relative; width: 100%; border-radius: 10px; overflow: hidden; }
+  .tile { position: absolute; padding: 6px 7px; border-radius: 4px; overflow: hidden; text-decoration: none; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 0 0 1px var(--gap); transition: filter .12s; }
+  .tile:hover, .tile:focus-visible { filter: brightness(1.08) saturate(1.1); z-index: 2; box-shadow: 0 0 0 2px var(--ink); outline: 0; }
+  .tile .n { font-size: 11.5px; font-weight: 500; line-height: 1.2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .tile .v { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tile.lg .n { font-size: 14px; font-weight: 600; -webkit-line-clamp: 3; } .tile.lg .v { font-size: 20px; letter-spacing: -0.02em; }
+  .tile.sm { padding: 3px 4px; } .tile.sm .n { font-size: 9.5px; font-weight: 600; -webkit-line-clamp: 1; display: block; white-space: nowrap; } .tile.sm .v { font-size: 10.5px; }
+  .tile.xs { padding: 0; align-items: center; justify-content: center; } .tile.xs .v { font-size: 9px; font-weight: 600; }
+  .tile.none { background: var(--none); color: var(--ink-3); }
+  .empty { color: var(--ink-3); padding: 2px 0; }
+
+  #tip { position: fixed; z-index: 10; pointer-events: none; background: var(--raised); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 14px; width: 272px; box-shadow: var(--shadow); display: none; font-size: 12px; }
+  #tip b { display: block; font-size: 14px; line-height: 1.25; }
+  #tip .m { color: var(--ink-2); margin: 2px 0 8px; }
+  #tip .big { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  #tip .big span:first-child { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  #tip .chip { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  #tip .chip i { width: 10px; height: 10px; border-radius: 3px; display: block; }
+  #tip dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 0; }
   #tip dt { color: var(--ink-2); } #tip dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-  #tip svg { display: block; margin-top: 8px; }
+  #tip svg { display: block; margin-top: 10px; color: var(--ink-2); }
+
+  #tableWrap { padding: 8px 12px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th, td { padding: 8px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  tbody tr:hover, tr:hover td { background: var(--none); }
   th:nth-child(-n+4), td:nth-child(-n+4) { text-align: left; white-space: normal; }
-  th { color: var(--ink-2); font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+  th { color: var(--ink-2); font-weight: 600; font-size: 12px; position: sticky; top: 0; background: var(--surface); }
   th button { all: unset; cursor: pointer; }
-  td a { color: inherit; }
-  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
-  footer { color: var(--ink-3); font-size: 12px; margin-top: 20px; }
-  footer a { color: inherit; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  footer { color: var(--ink-3); font-size: 12px; margin-top: 24px; max-width: 860px; }
   [hidden] { display: none !important; }
+  @media (max-width: 640px) { .bar { position: static; } .tier h3 { flex-wrap: wrap; } main { padding: 24px 14px 40px; } .bar { margin: 0 -14px 16px; padding: 8px 14px; } h1 { font-size: 27px; } .legend { margin-left: 0; } .breadth { margin-left: 0; } section.game { padding: 14px; } }
 </style>
 </head>
 <body>
 <main>
-  <h1>Booster Box Heatmap</h1>
-  <p class="sub" id="sub">Loading prices…</p>
+  <header>
+    <div>
+      <div class="eyebrow">Sealed market · Magic · Pokémon · One Piece</div>
+      <h1>Booster Box Heatmap</h1>
+      <p class="sub" id="sub">Loading prices…</p>
+    </div>
+    <button class="theme" id="theme" type="button">Dark mode</button>
+  </header>
 
   <div class="bar">
-    <div><span class="lab">Change over</span><span class="seg" id="period">
+    <div class="ctl"><span class="lab">Change</span><span class="seg" id="period">
       <button data-v="d1" aria-pressed="true">1 day</button><button data-v="d7">7 days</button><button data-v="d30">30 days</button></span></div>
-    <div><span class="lab">Game</span><span class="seg" id="game"><button data-v="all" aria-pressed="true">All</button></span></div>
-    <div><span class="lab">View</span><span class="seg" id="view">
+    <div class="ctl"><span class="lab">Game</span><span class="seg" id="game"><button data-v="all" aria-pressed="true">All</button></span></div>
+    <div class="ctl"><span class="lab">Tile size</span><span class="seg" id="size">
+      <button data-v="price" aria-pressed="true" id="sizeMain">Box price</button><button data-v="equal">Equal</button></span></div>
+    <div class="ctl"><span class="lab">View</span><span class="seg" id="view">
       <button data-v="map" aria-pressed="true">Heatmap</button><button data-v="table">Table</button></span></div>
     <div class="legend" id="legend" aria-label="Color scale"></div>
   </div>
 
-  <div class="notice" id="notice" hidden></div>
+  <div class="movers" id="movers"></div>
   <div id="map"></div>
-  <section class="game" id="tableWrap" hidden><div style="overflow:auto"><table id="table"></table></div></section>
+  <section class="card" id="tableWrap" hidden><div style="overflow:auto"><table id="table"></table></div></section>
 
   <footer>
     Prices are TCGplayer market prices, republished daily by <a href="https://tcgcsv.com/">TCGCSV</a>. Thank you, TCGCSV.
     A market price is TCGplayer's figure based on recent sales, so thinly traded boxes can show no price or a stale one.
+    <span id="sizeNote"></span>
     Vintage means sets released before <span id="cuts"></span>. Newly Released means the past 365 days, including preorders.
   </footer>
 </main>
@@ -114,14 +164,15 @@
 const TIERS = [['new', 'Newly Released', 'past 365 days and preorders'], ['modern', 'Modern', ''], ['vintage', 'Vintage', '']];
 const CAPS = { d1: 4, d7: 8, d30: 16 };            // % move that reaches the darkest step
 const LABEL = { d1: '1-day', d7: '7-day', d30: '30-day' };
-const state = { period: 'd1', game: 'all', view: 'map', sort: ['dollars', -1] };
-let DATA;
+const state = { period: 'd1', game: 'all', size: 'price', view: 'map', sort: ['price', -1] };
+let DATA, GNAME;
 
 const $ = s => document.querySelector(s);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 const money = v => v == null ? '—' : '$' + v.toLocaleString('en-US', { minimumFractionDigits: v < 1000 ? 2 : 0, maximumFractionDigits: v < 1000 ? 2 : 0 });
 const pctText = v => v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(Math.abs(v) >= 10 ? 1 : 2) + '%';
 const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const median = a => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 
 // Seven steps: three down, flat, three up. Returns a CSS variable name, or null for "no data".
 function bin(v, period) {
@@ -136,12 +187,34 @@ function inkFor(hex) {
   const L = .2126 * lin(n >> 16) + .7152 * lin(n >> 8 & 255) + .0722 * lin(n & 255);
   return L > .32 ? '#0b0b0b' : '#ffffff';
 }
-function shortName(b) {
-  const v = b.variant === 'Standard' ? '' : ' · ' + b.variant;
-  return b.set + v;
+const shortName = b => b.set.replace(/^[A-Z]{2,4}\d{0,2}: /, '') + (b.variant === 'Standard' ? '' : ' · ' + b.variant);
+
+// Squarified treemap: items sorted by value, laid out in rows that keep tiles close to square.
+function squarify(items, W, H) {
+  const total = items.reduce((s, i) => s + i.value, 0), out = [];
+  let x = 0, y = 0, w = W, h = H, row = [], rowSum = 0;
+  const scale = W * H / total;
+  const worst = (sum, lo, hi, side) => { const s2 = sum * sum, d2 = side * side; return Math.max(d2 * hi / s2, s2 / (d2 * lo)); };
+  const flush = () => {
+    const side = Math.min(w, h), thick = rowSum / side; let off = 0;
+    for (const r of row) { const len = r.area / thick;
+      out.push(w >= h ? { item: r.item, x, y: y + off, w: thick, h: len } : { item: r.item, x: x + off, y, w: len, h: thick }); off += len; }
+    if (w >= h) { x += thick; w -= thick; } else { y += thick; h -= thick; }
+    row = []; rowSum = 0;
+  };
+  for (const item of items) {
+    const area = item.value * scale, side = Math.min(w, h);
+    if (row.length) {
+      const lo = Math.min(...row.map(r => r.area)), hi = Math.max(...row.map(r => r.area));
+      if (worst(rowSum + area, Math.min(lo, area), Math.max(hi, area), side) > worst(rowSum, lo, hi, side)) flush();
+    }
+    row.push({ item, area }); rowSum += area;
+  }
+  if (row.length) flush();
+  return out;
 }
 
-function seg(id, key, after) {
+function seg(id, key) {
   $(id).addEventListener('click', e => {
     const btn = e.target.closest('button'); if (!btn) return;
     state[key] = btn.dataset.v;
@@ -151,24 +224,25 @@ function seg(id, key, after) {
 }
 
 function legend() {
-  const cap = CAPS[state.period], L = $('#legend');
-  L.replaceChildren(el('span', '', '−' + cap + '% or more'));
-  for (const v of ['--dn-3', '--dn-2', '--dn-1', '--flat', '--up-1', '--up-2', '--up-3']) { const i = el('i'); i.style.background = `var(${v})`; L.append(i); }
-  L.append(el('span', '', '+' + cap + '% or more'));
-  const none = el('i', 'none'); none.style.marginLeft = '10px';
-  L.append(none, el('span', '', 'no data'));
+  const cap = CAPS[state.period], L = $('#legend'), ramp = el('span', 'ramp');
+  for (const v of ['--dn-3', '--dn-2', '--dn-1', '--flat', '--up-1', '--up-2', '--up-3']) { const i = el('i'); i.style.background = `var(${v})`; ramp.append(i); }
+  L.replaceChildren(el('span', '', '−' + cap + '%'), ramp, el('span', '', '+' + cap + '%'), el('i', 'none'), el('span', '', 'no data'));
 }
 
-function tile(b, sizeClass) {
-  const v = b[state.period], k = bin(v, state.period);
-  const a = el('a', 'tile' + (k ? '' : ' none') + (sizeClass ? ' ' + sizeClass : ''));
+function tile(r) {
+  const b = r.item.box, v = b[state.period], k = bin(v, state.period);
+  const cls = r.w >= 150 && r.h >= 90 ? ' lg' : r.w >= 84 && r.h >= 46 ? '' : r.w >= 40 && r.h >= 28 ? ' sm' : ' xs';
+  const a = el('a', 'tile' + cls + (k ? '' : ' none'));
   a.href = b.url; a.target = '_blank'; a.rel = 'noopener';
+  a.style.cssText = `left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px`;
   if (k) { const hex = css(k); a.style.background = hex; a.style.color = inkFor(hex); }
-  a.append(el('span', 'n', shortName(b)), el('span', 'v', v == null ? money(b.price) : pctText(v)));
+  const val = v == null ? money(b.price) : pctText(v);
+  if (cls === ' xs') { if (r.w >= 34 && r.h >= 14 && v != null) a.append(el('span', 'v', pctText(v).replace(/\.\d+/, ''))); }
+  else a.append(el('span', 'n', cls === ' sm' ? (b.abbr || shortName(b)) : shortName(b)), el('span', 'v', val));
   a.setAttribute('aria-label', `${b.name}, ${money(b.price)}, ${LABEL[state.period]} change ${pctText(v)}`);
   a.addEventListener('pointermove', e => showTip(b, e.clientX, e.clientY));
   a.addEventListener('pointerleave', hideTip);
-  a.addEventListener('focus', () => { const r = a.getBoundingClientRect(); showTip(b, r.right, r.top); });
+  a.addEventListener('focus', () => { const q = a.getBoundingClientRect(); showTip(b, q.right, q.top); });
   a.addEventListener('blur', hideTip);
   return a;
 }
@@ -176,61 +250,81 @@ function tile(b, sizeClass) {
 function spark(values) {
   const pts = values.map((v, i) => [i, v]).filter(p => p[1] != null);
   if (pts.length < 2) return '';
-  const lo = Math.min(...pts.map(p => p[1])), hi = Math.max(...pts.map(p => p[1])), W = 234, H = 36;
-  const d = pts.map((p, i) => (i ? 'L' : 'M') + (p[0] / (values.length - 1) * W).toFixed(1) + ' ' + (H - 2 - (hi === lo ? .5 : (p[1] - lo) / (hi - lo)) * (H - 4)).toFixed(1)).join(' ');
+  const lo = Math.min(...pts.map(p => p[1])), hi = Math.max(...pts.map(p => p[1])), W = 242, H = 40;
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + (p[0] / (values.length - 1) * W).toFixed(1) + ' ' + (H - 3 - (hi === lo ? .5 : (p[1] - lo) / (hi - lo)) * (H - 6)).toFixed(1)).join(' ');
   return `<svg width="${W}" height="${H}" role="img" aria-label="30-day price trend"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
 }
 function showTip(b, x, y) {
-  const t = $('#tip');
-  const row = (k, v) => `<dt>${k}</dt><dd>${v}</dd>`;
-  t.innerHTML = `<b></b><div class="m"></div><dl>${row('Market price', money(b.price))}${row('Lowest listing', money(b.low))}`
-    + row('1 day', pctText(b.d1)) + row('7 days', pctText(b.d7)) + row('30 days', pctText(b.d30))
+  const t = $('#tip'), v = b[state.period], k = bin(v, state.period);
+  const row = (key, val) => `<dt>${key}</dt><dd>${val}</dd>`;
+  t.innerHTML = `<b></b><div class="m"></div><div class="big"><span>${money(b.price)}</span><span class="chip">${k ? `<i style="background:var(${k})"></i>` : ''}${pctText(v)} <span style="font-weight:400;color:var(--ink-3)">${LABEL[state.period]}</span></span></div><dl>`
+    + row('1 day', pctText(b.d1)) + row('7 days', pctText(b.d7)) + row('30 days', pctText(b.d30)) + row('Lowest listing', money(b.low))
     + (b.units != null ? row('Sold today', b.units.toLocaleString() + ' boxes') + row('Dollar volume', money(b.dollars)) : '')
     + row(b.preorder ? 'Releases' : 'Released', b.released) + `</dl>${spark(b.spark)}`;
   t.querySelector('b').textContent = b.name;
-  t.querySelector('.m').textContent = b.set + (b.preorder ? ' · preorder' : '');
+  t.querySelector('.m').textContent = GNAME[b.game] + ' · ' + b.set + (b.preorder ? ' · preorder' : '');
   t.style.display = 'block';
   const w = t.offsetWidth, h = t.offsetHeight;
-  t.style.left = Math.max(8, Math.min(x + 14, innerWidth - w - 8)) + 'px';
-  t.style.top = Math.max(8, Math.min(y + 14, innerHeight - h - 8)) + 'px';
+  t.style.left = Math.max(8, Math.min(x + 16, innerWidth - w - 8)) + 'px';
+  t.style.top = Math.max(8, Math.min(y + 16, innerHeight - h - 8)) + 'px';
 }
 function hideTip() { $('#tip').style.display = 'none'; }
 
+function renderMovers(boxes) {
+  const root = $('#movers'); root.replaceChildren();
+  const p = state.period, pool = boxes.filter(b => b[p] != null && b.price != null && (state.game === 'all' || b.game === state.game));
+  for (const [title, list] of [[`Biggest gains · ${LABEL[p]}`, pool.filter(b => b[p] > 0).sort((a, b) => b[p] - a[p])], [`Biggest drops · ${LABEL[p]}`, pool.filter(b => b[p] < 0).sort((a, b) => a[p] - b[p])]]) {
+    const card = el('div', 'card'); card.append(el('h2', '', title));
+    if (!list.length) card.append(el('div', 'quiet', pool.length ? 'None in this period.' : 'Needs more stored price history.'));
+    for (const b of list.slice(0, 5)) {
+      const a = el('a', 'mv'); a.href = b.url; a.target = '_blank'; a.rel = 'noopener';
+      const dot = el('span', 'dot'); dot.style.background = `var(${bin(b[p], p)})`;
+      const nm = el('span', 'nm', shortName(b) + ' '); nm.append(el('span', 'gm', GNAME[b.game]));
+      a.append(dot, nm, el('span', 'pr', money(b.price)), el('span', 'ch', pctText(b[p])));
+      card.append(a);
+    }
+    root.append(card);
+  }
+}
+
 function renderMap(boxes) {
   const root = $('#map'); root.replaceChildren();
+  const p = state.period, byVolume = DATA.hasVolume && state.size === 'price';
   for (const g of DATA.games) {
     if (state.game !== 'all' && state.game !== g.key) continue;
-    const sec = el('section', 'game'); sec.append(el('h2', '', g.name));
+    const mine = boxes.filter(b => b.game === g.key), moves = mine.filter(b => b[p] != null).map(b => b[p]);
+    const up = moves.filter(v => v > 0).length, dn = moves.filter(v => v < 0).length, flat = moves.length - up - dn;
+    const sec = el('section', 'card game'), head = el('div', 'ghead');
+    head.append(el('h2', '', g.name), el('span', 'meta', `${mine.length} boxes · median ${LABEL[p]} move ${pctText(median(moves))}`));
+    if (moves.length) {
+      const br = el('div', 'breadth'), track = el('span', 'track');
+      for (const [n, c] of [[dn, '--dn-2'], [flat, '--flat'], [up, '--up-2']]) if (n) { const i = el('i'); i.style.cssText = `flex:${n};background:var(${c})`; track.append(i); }
+      br.append(el('span', '', `${dn} down`), track, el('span', '', `${up} up`)); head.append(br);
+    }
+    sec.append(head); root.append(sec);
     for (const [key, title, note] of TIERS) {
       if (key === 'vintage' && !g.vintageBefore) continue;
-      const list = boxes.filter(b => b.game === g.key && b.tier === key);
-      const wrap = el('div', 'tier'), h = el('h3', '', title + ' ');
+      const list = mine.filter(b => b.tier === key);
+      const wrap = el('div', 'tier'), h = el('h3', '', title);
       const sub = key === 'vintage' ? `before ${g.vintageBefore.slice(0, 4)}` : note;
-      h.append(el('span', '', `${list.length} ${list.length === 1 ? "box" : "boxes"}${sub ? ' · ' + sub : ''}`)); wrap.append(h);
-      if (!list.length) wrap.append(el('div', 'empty', 'No boxes listed.'));
-      else {
-        const grid = el('div', 'grid');
-        // With volume data, the busiest boxes get larger tiles and lead the group.
-        let size = () => '';
-        if (DATA.hasVolume) {
-          const sorted = list.map(b => b.dollars ?? 0).sort((a, b) => b - a);
-          const big = sorted[Math.floor(sorted.length * .05)], mid = sorted[Math.floor(sorted.length * .2)];
-          size = b => (b.dollars ?? 0) > 0 && b.dollars >= big ? 's3' : (b.dollars ?? 0) > 0 && b.dollars >= mid ? 's2' : '';
-          list.sort((a, b) => (b.dollars ?? -1) - (a.dollars ?? -1));
-        }
-        for (const b of list) grid.append(tile(b, size(b)));
-        wrap.append(grid);
-      }
-      sec.append(wrap);
+      h.append(el('span', '', `${list.length} ${list.length === 1 ? "box" : "boxes"}${sub ? ' · ' + sub : ''}`)); wrap.append(h); sec.append(wrap);
+      if (!list.length) { wrap.append(el('div', 'empty', 'No boxes listed.')); continue; }
+      const raw = b => state.size === 'equal' ? 1 : byVolume ? Math.sqrt(b.dollars || 0) : Math.sqrt(b.price || 0);
+      const vals = list.map(raw), floor = Math.max(...vals) * .22 || 1;
+      const items = list.map((b, i) => ({ box: b, value: Math.max(vals[i], floor) })).sort((a, b) => b.value - a.value);
+      const map = el('div', 'map'); wrap.append(map);
+      const W = map.clientWidth, narrow = W < 640;
+      const share = list.filter(b => b.price != null).length / list.length;   // unpriced tiers stay compact
+      const H = Math.round(Math.min(narrow ? 900 : 600, Math.max(110, Math.sqrt(list.length) * (narrow ? 70 : 44) * (.45 + .55 * share))));
+      map.style.height = H + 'px';
+      for (const r of squarify(items, W, H)) map.append(tile(r));
     }
-    root.append(sec);
   }
 }
 
 function renderTable(boxes) {
   const cols = [['game', 'Game'], ['tier', 'Tier'], ['set', 'Set'], ['name', 'Box'], ['released', 'Released'], ['price', 'Market'], ['low', 'Low'],
     ['d1', '1 day'], ['d7', '7 days'], ['d30', '30 days']].concat(DATA.hasVolume ? [['units', 'Sold'], ['dollars', 'Volume']] : []);
-  if (!cols.some(c => c[0] === state.sort[0])) state.sort = ['price', -1];
   const [k, dir] = state.sort;
   const rows = boxes.filter(b => state.game === 'all' || b.game === state.game).sort((a, b) => {
     const x = a[k], y = b[k]; if (x == null) return 1; if (y == null) return -1;
@@ -244,10 +338,10 @@ function renderTable(boxes) {
     th.append(b); hr.append(th);
   }
   t.append(hr);
-  const gname = Object.fromEntries(DATA.games.map(g => [g.key, g.name])), tname = Object.fromEntries(TIERS.map(x => [x[0], x[1]]));
+  const tname = Object.fromEntries(TIERS.map(x => [x[0], x[1]]));
   for (const b of rows) {
     const tr = el('tr');
-    tr.append(el('td', '', gname[b.game]), el('td', '', tname[b.tier]), el('td', '', b.set));
+    tr.append(el('td', '', GNAME[b.game]), el('td', '', tname[b.tier]), el('td', '', b.set));
     const name = el('td'), a = el('a', '', b.name); a.href = b.url; a.target = '_blank'; a.rel = 'noopener'; name.append(a); tr.append(name);
     tr.append(el('td', '', b.released), el('td', '', money(b.price)), el('td', '', money(b.low)));
     for (const p of ['d1', 'd7', 'd30']) {
@@ -261,26 +355,36 @@ function renderTable(boxes) {
 }
 
 function render() {
-  legend();
+  hideTip(); legend();
   const boxes = DATA.boxes.slice();
   $('#map').hidden = state.view !== 'map'; $('#tableWrap').hidden = state.view !== 'table';
+  renderMovers(boxes);
   if (state.view === 'map') renderMap(boxes); else renderTable(boxes);
-  const have = DATA.boxes.filter(b => b[state.period] != null).length;
-  const n = $('#notice'), msgs = [];
-  if (!have) msgs.push(`No ${LABEL[state.period]} change yet: this needs ${state.period === 'd1' ? 'two days' : state.period === 'd7' ? 'a week' : 'a month'} of stored prices (${DATA.historyDays} day${DATA.historyDays === 1 ? '' : 's'} so far). Tiles show the current market price until then.`);
-  if (!DATA.hasVolume) msgs.push('Sales volume is not connected, so every tile is the same size.');
-  n.hidden = !msgs.length; n.textContent = msgs.join(' ');
+  $('#sizeNote').textContent = state.size === 'equal' ? '' : DATA.hasVolume ? 'Tile size follows the day\'s dollar volume (square-root scaled).' : 'Tile size follows the box\'s market price (square-root scaled); sales volume is not connected.';
+}
+
+function setTheme(mode) {
+  if (mode) document.documentElement.dataset.theme = mode;
+  const dark = (document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark';
+  $('#theme').textContent = dark ? 'Light mode' : 'Dark mode';
+  return dark;
 }
 
 async function load() {
   // Preview builds inline the data; the deployed site reads the nightly data.json.
   DATA = window.__DATA__ || await fetch('data.json', { cache: 'no-cache' }).then(r => r.json());
+  GNAME = Object.fromEntries(DATA.games.map(g => [g.key, g.name]));
   const asOf = new Date(DATA.asOf.replace(/\+0000$/, 'Z'));
-  $('#sub').textContent = `${DATA.boxes.length} sealed booster boxes across ${DATA.games.length} games · prices as of ${asOf.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })} · updates once a day`;
+  const priced = DATA.boxes.filter(b => b.price != null).length;
+  $('#sub').textContent = `${DATA.boxes.length} sealed boxes, ${priced} with a market price · as of ${asOf.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })} · updates once a day`;
   $('#cuts').textContent = DATA.games.filter(g => g.vintageBefore).map(g => `${g.vintageBefore.slice(0, 4)} for ${g.name}`).join(' and ');
-  for (const g of DATA.games) { const b = el('button', '', g.name); b.dataset.v = g.key; b.setAttribute('aria-pressed', 'false'); $('#game').append(b); }
-  seg('#period', 'period'); seg('#game', 'game'); seg('#view', 'view');
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
+  if (DATA.hasVolume) $('#sizeMain').textContent = 'Volume';
+  for (const g of DATA.games) { const b = el('button', '', g.name.replace(': The Gathering', '')); b.dataset.v = g.key; b.setAttribute('aria-pressed', 'false'); $('#game').append(b); }
+  seg('#period', 'period'); seg('#game', 'game'); seg('#size', 'size'); seg('#view', 'view');
+  try { setTheme(localStorage.getItem('theme')); } catch (e) { setTheme(); }
+  $('#theme').onclick = () => { const next = setTheme() ? 'light' : 'dark'; setTheme(next); try { localStorage.setItem('theme', next); } catch (e) {} render(); };
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { setTheme(); render(); });
+  let timer; addEventListener('resize', () => { clearTimeout(timer); timer = setTimeout(render, 150); });
   render();
 }
 load().catch(e => { $('#sub').textContent = 'Could not load prices: ' + e.message; });
