@@ -50,7 +50,7 @@ for (const date of dates) {
         if (!want.has(pr.productId)) continue;
         const prev = history[pr.productId]?.[date];
         if (prev && prev[0] != null && pr.marketPrice == null) continue;
-        (history[pr.productId] ??= {})[date] = [pr.marketPrice ?? null, pr.lowPrice ?? null];
+        (history[pr.productId] ??= {})[date] = [pr.marketPrice ?? null, pr.lowPrice ?? null, pr.midPrice ?? null, pr.directLowPrice ?? null];
         n++;
       }
     }
