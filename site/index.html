@@ -452,7 +452,7 @@ function renderOverview(boxes) {
     const pick = () => pickGame(x.g.key);
     // Too small to split: the whole game is one tile.
     if (r.w < 150 || r.h < 110) {
-      const cls = r.w >= 70 && r.h >= 50 ? '' : ' sm';
+      const cls = r.w >= 100 && r.h >= 72 ? '' : ' sm';
       blk.append(ovTile(cls, gname.replace(': The Gathering', ''), `${share.toFixed(1)}% of ${SIZE_WORD[mode]}`, x.agg, share, mode, gname, 'All tiers', pick, { x: 0, y: 0, w: r.w, h: r.h }));
       continue;
     }
@@ -465,7 +465,7 @@ function renderOverview(boxes) {
     const iw = r.w, ih = r.h - 44;
     for (const q of squarify(tiers.map(t => ({ t, value: t.agg.size })), iw, ih)) {
       const t = q.item.t, ts = t.agg.size / x.agg.size * 100;
-      const cls = q.w >= 220 && q.h >= 120 ? ' big' : q.w >= 90 && q.h >= 56 ? '' : ' sm';
+      const cls = q.w >= 220 && q.h >= 120 ? ' big' : q.w >= 100 && q.h >= 72 ? '' : ' sm';
       blk.append(ovTile(cls, t.title, `${ts.toFixed(0)}% of ${gname.replace(': The Gathering', '')} · ${t.agg.count} boxes`, t.agg, t.agg.size / total * 100, mode,
         `${gname} · ${t.title}`, `${ts.toFixed(1)}% of ${gname}`, pick, { x: q.x, y: q.y + 44, w: q.w, h: q.h }));
     }
