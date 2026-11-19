@@ -6,9 +6,10 @@ export const GAMES = {
   68: { key: 'onepiece', name: 'One Piece',            vintageBefore: null },         // game launched 2022: no vintage tier
 };
 
-const INCLUDE = /booster\s+(box|display)/i;
+// "Booster Box", "Booster Display", "Collector Booster Pack Display", and One Piece's "Extra Booster: <set> Box".
+const INCLUDE = /booster\s+(pack\s+)?(box|display)|^extra booster: .*\bbox$/i;
 // Not a single sealed booster box: cases, multi-box lots, bundles, loose packs, promos, toppers.
-const EXCLUDE = /\bcase\b|\bbundle\b|\blot\b|\bset of\b|box topper|\bempty\b|\bpack\b(?!s)|half booster|code card|digital|\[set of|display case|costco|sam's club/i;
+const EXCLUDE = /\bcase\b|\bbundle\b|\blot\b|\bset of\b|box topper|\bempty\b|\bpack\b(?!s|\s+(display|box))|half booster|code card|digital|\[set of|display case|costco|sam's club/i;
 
 export function isBoosterBox(name) {
   return INCLUDE.test(name) && !EXCLUDE.test(name);
