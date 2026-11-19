@@ -2,7 +2,9 @@ name: Nightly price sync
 
 on:
   schedule:
-    - cron: '17 21 * * *'   # daily 21:17 UTC, about an hour after TCGCSV's daily build
+    # Every 4 hours. TCGCSV is only re-read when it has a new daily build (around 20:00 UTC);
+    # the other runs just refresh eBay listings, which may be shown for at most six hours.
+    - cron: '17 1,5,9,13,17,21 * * *'
   workflow_dispatch:
 
 permissions:
@@ -38,6 +40,14 @@ jobs:
         run: |
           node scripts/backfill.mjs 1 7 30
           node scripts/sync.mjs --build
+
+      # Skipped automatically until the EBAY_CLIENT_ID and EBAY_CLIENT_SECRET secrets exist.
+      - name: eBay asking prices
+        continue-on-error: true
+        env:
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+        run: node scripts/ebay.mjs
 
       - name: Save data
         run: |
