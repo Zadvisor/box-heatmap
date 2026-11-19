@@ -1,0 +1,55 @@
+name: Nightly price sync
+
+on:
+  schedule:
+    - cron: '17 21 * * *'   # daily 21:17 UTC, about an hour after TCGCSV's daily build
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    env:
+      SYNC_USER_AGENT: BoxHeatmap/1.0 (github.com/${{ github.repository }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Pull today's prices
+        run: node scripts/sync.mjs
+
+      # Runs once, on the first sync: fetches three archive days so 1/7/30-day changes
+      # work immediately. Dates are recorded so no archive is ever downloaded twice.
+      - name: Backfill history (first run only)
+        if: hashFiles('data/backfilled.json') == ''
+        run: |
+          node scripts/backfill.mjs 1 7 30
+          node scripts/sync.mjs --build
+
+      - name: Save data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data site/data.json
+          git diff --cached --quiet || git commit -m "Prices for $(date -u +%F)"
+          git push
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
