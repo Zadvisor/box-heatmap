@@ -6,6 +6,11 @@ on:
     # the other runs just refresh eBay listings, which may be shown for at most six hours.
     - cron: '17 1,5,9,13,17,21 * * *'
   workflow_dispatch:
+    inputs:
+      full:
+        description: Re-read every set's product list (full refresh)
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -31,7 +36,7 @@ jobs:
           node-version: 22
 
       - name: Pull today's prices
-        run: node scripts/sync.mjs
+        run: node scripts/sync.mjs ${{ inputs.full && '--force' || '' }}
 
       # Runs once, on the first sync: fetches three archive days so 1/7/30-day changes
       # work immediately. Dates are recorded so no archive is ever downloaded twice.
