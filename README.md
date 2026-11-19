@@ -21,7 +21,7 @@ TCGCSV updates exactly once a day, so the site is as fresh as its source.
 3. **Actions → Nightly price sync → Run workflow** for the first run. It syncs, backfills
    three days of history (yesterday, 7 and 30 days ago) so the colors work at once, and deploys.
 
-After that it runs by itself every day at 21:17 UTC.
+After that it runs by itself every four hours; TCGCSV prices are re-read once a day.
 
 To run it on your own computer instead (Node 22+):
 
@@ -57,6 +57,19 @@ price) and the busiest boxes lead each group.
 
 TCGplayer's terms of service prohibit crawling or scraping their site without permission, so
 this project does not collect volume from their pages.
+
+## eBay asking prices
+
+For boxes with no TCGplayer market price, `scripts/ebay.mjs` looks up the lowest verified
+asking price through eBay's official Browse API and the site lists them in a separate
+"On eBay now" section. It is off until you add two repository secrets
+(**Settings → Secrets and variables → Actions**): `EBAY_CLIENT_ID` and `EBAY_CLIENT_SECRET`,
+from a production keyset at [developer.ebay.com](https://developer.ebay.com/).
+
+To follow eBay's API License Agreement, eBay results are kept apart from TCGplayer data, are
+never committed or stored as history, show how old they are, and disappear from the page once
+they are more than six hours old. The workflow refreshes them every four hours. The matching
+rules live in `scripts/ebay-rules.mjs`.
 
 ## Being a good neighbor to TCGCSV
 
