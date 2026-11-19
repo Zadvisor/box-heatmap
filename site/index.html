@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Booster Box Heatmap</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f5f4f1; --surface: #fcfcfb; --line: #e2e1dc;
+    --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #7b7a75;
+    --flat: #f0efec; --none: #fcfcfb;
+    --up-1: #b7d3f6; --up-2: #5598e7; --up-3: #1c5cab;
+    --dn-1: #f6c4c1; --dn-2: #e2645e; --dn-3: #a52c2c;
+    --focus: #0b0b0b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #111110; --surface: #1a1a19; --line: #32322f;
+      --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #94938b;
+      --flat: #383835; --none: #1a1a19;
+      --up-1: #184f95; --up-2: #2a78d6; --up-3: #86b6ef;
+      --dn-1: #7c2626; --dn-2: #cf4a45; --dn-3: #f1a19d;
+      --focus: #f0efec;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #111110; --surface: #1a1a19; --line: #32322f;
+    --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #94938b;
+    --flat: #383835; --none: #1a1a19;
+    --up-1: #184f95; --up-2: #2a78d6; --up-3: #86b6ef;
+    --dn-1: #7c2626; --dn-2: #cf4a45; --dn-3: #f1a19d;
+    --focus: #f0efec;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1280px; margin: 0 auto; padding: 24px 20px 48px; }
+  h1 { font-size: 22px; margin: 0 0 2px; letter-spacing: -0.01em; }
+  .sub { color: var(--ink-2); margin: 0 0 16px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; margin-bottom: 16px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .seg button { border: 0; background: none; color: var(--ink-2); font: inherit; padding: 6px 12px; cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+  .seg button:focus-visible, .tile:focus-visible, th button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .lab { color: var(--ink-3); font-size: 12px; margin-right: 6px; }
+  .legend { display: flex; align-items: center; gap: 6px; margin-left: auto; color: var(--ink-2); font-size: 12px; }
+  .legend i { display: block; width: 26px; height: 12px; }
+  .legend .none { border: 1px dashed var(--ink-3); background: var(--none); }
+  .notice { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; color: var(--ink-2); margin-bottom: 16px; }
+  section.game { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  section.game h2 { font-size: 16px; margin: 0 0 12px; }
+  .tier { margin-bottom: 14px; }
+  .tier:last-child { margin-bottom: 0; }
+  .tier h3 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); margin: 0 0 6px; }
+  .tier h3 span { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--ink-3); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); grid-auto-rows: 58px; grid-auto-flow: dense; gap: 2px; }
+  .tile { border: 0; border-radius: 4px; padding: 6px 8px; text-align: left; font: inherit; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; text-decoration: none; min-width: 0; }
+  .tile .n { font-size: 11px; line-height: 1.2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .tile .v { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tile.s2 { grid-column: span 2; } .tile.s3 { grid-column: span 2; grid-row: span 2; }
+  .tile.none { background: var(--none); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink-3); }
+  .empty { color: var(--ink-3); font-size: 13px; padding: 4px 0; }
+  #tip { position: fixed; z-index: 10; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 12px; width: 260px; box-shadow: 0 6px 24px rgba(0,0,0,.18); display: none; font-size: 12px; }
+  #tip b { display: block; font-size: 13px; }
+  #tip .m { color: var(--ink-2); margin-bottom: 6px; }
+  #tip dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 0; }
+  #tip dt { color: var(--ink-2); } #tip dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  #tip svg { display: block; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th:nth-child(-n+4), td:nth-child(-n+4) { text-align: left; white-space: normal; }
+  th { color: var(--ink-2); font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+  th button { all: unset; cursor: pointer; }
+  td a { color: inherit; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  footer { color: var(--ink-3); font-size: 12px; margin-top: 20px; }
+  footer a { color: inherit; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Booster Box Heatmap</h1>
+  <p class="sub" id="sub">Loading prices…</p>
+
+  <div class="bar">
+    <div><span class="lab">Change over</span><span class="seg" id="period">
+      <button data-v="d1" aria-pressed="true">1 day</button><button data-v="d7">7 days</button><button data-v="d30">30 days</button></span></div>
+    <div><span class="lab">Game</span><span class="seg" id="game"><button data-v="all" aria-pressed="true">All</button></span></div>
+    <div><span class="lab">View</span><span class="seg" id="view">
+      <button data-v="map" aria-pressed="true">Heatmap</button><button data-v="table">Table</button></span></div>
+    <div class="legend" id="legend" aria-label="Color scale"></div>
+  </div>
+
+  <div class="notice" id="notice" hidden></div>
+  <div id="map"></div>
+  <section class="game" id="tableWrap" hidden><div style="overflow:auto"><table id="table"></table></div></section>
+
+  <footer>
+    Prices are TCGplayer market prices, republished daily by <a href="https://tcgcsv.com/">TCGCSV</a>. Thank you, TCGCSV.
+    A market price is TCGplayer's figure based on recent sales, so thinly traded boxes can show no price or a stale one.
+    Vintage means sets released before <span id="cuts"></span>. Newly Released means the past 365 days, including preorders.
+  </footer>
+</main>
+<div id="tip" role="status"></div>
+
+<script>
+const TIERS = [['new', 'Newly Released', 'past 365 days and preorders'], ['modern', 'Modern', ''], ['vintage', 'Vintage', '']];
+const CAPS = { d1: 4, d7: 8, d30: 16 };            // % move that reaches the darkest step
+const LABEL = { d1: '1-day', d7: '7-day', d30: '30-day' };
+const state = { period: 'd1', game: 'all', view: 'map', sort: ['dollars', -1] };
+let DATA;
+
+const $ = s => document.querySelector(s);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const money = v => v == null ? '—' : '$' + v.toLocaleString('en-US', { minimumFractionDigits: v < 1000 ? 2 : 0, maximumFractionDigits: v < 1000 ? 2 : 0 });
+const pctText = v => v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(Math.abs(v) >= 10 ? 1 : 2) + '%';
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+// Seven steps: three down, flat, three up. Returns a CSS variable name, or null for "no data".
+function bin(v, period) {
+  if (v == null) return null;
+  const cap = CAPS[period], a = Math.abs(v);
+  if (a < cap / 8) return '--flat';
+  const step = a >= cap ? 3 : a >= cap / 2.5 ? 2 : 1;
+  return (v > 0 ? '--up-' : '--dn-') + step;
+}
+function inkFor(hex) {
+  const n = parseInt(hex.slice(1), 16), lin = c => { c /= 255; return c <= .03928 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4; };
+  const L = .2126 * lin(n >> 16) + .7152 * lin(n >> 8 & 255) + .0722 * lin(n & 255);
+  return L > .32 ? '#0b0b0b' : '#ffffff';
+}
+function shortName(b) {
+  const v = b.variant === 'Standard' ? '' : ' · ' + b.variant;
+  return b.set + v;
+}
+
+function seg(id, key, after) {
+  $(id).addEventListener('click', e => {
+    const btn = e.target.closest('button'); if (!btn) return;
+    state[key] = btn.dataset.v;
+    for (const b of $(id).children) b.setAttribute('aria-pressed', b === btn);
+    render();
+  });
+}
+
+function legend() {
+  const cap = CAPS[state.period], L = $('#legend');
+  L.replaceChildren(el('span', '', '−' + cap + '% or more'));
+  for (const v of ['--dn-3', '--dn-2', '--dn-1', '--flat', '--up-1', '--up-2', '--up-3']) { const i = el('i'); i.style.background = `var(${v})`; L.append(i); }
+  L.append(el('span', '', '+' + cap + '% or more'));
+  const none = el('i', 'none'); none.style.marginLeft = '10px';
+  L.append(none, el('span', '', 'no data'));
+}
+
+function tile(b, sizeClass) {
+  const v = b[state.period], k = bin(v, state.period);
+  const a = el('a', 'tile' + (k ? '' : ' none') + (sizeClass ? ' ' + sizeClass : ''));
+  a.href = b.url; a.target = '_blank'; a.rel = 'noopener';
+  if (k) { const hex = css(k); a.style.background = hex; a.style.color = inkFor(hex); }
+  a.append(el('span', 'n', shortName(b)), el('span', 'v', v == null ? money(b.price) : pctText(v)));
+  a.setAttribute('aria-label', `${b.name}, ${money(b.price)}, ${LABEL[state.period]} change ${pctText(v)}`);
+  a.addEventListener('pointermove', e => showTip(b, e.clientX, e.clientY));
+  a.addEventListener('pointerleave', hideTip);
+  a.addEventListener('focus', () => { const r = a.getBoundingClientRect(); showTip(b, r.right, r.top); });
+  a.addEventListener('blur', hideTip);
+  return a;
+}
+
+function spark(values) {
+  const pts = values.map((v, i) => [i, v]).filter(p => p[1] != null);
+  if (pts.length < 2) return '';
+  const lo = Math.min(...pts.map(p => p[1])), hi = Math.max(...pts.map(p => p[1])), W = 234, H = 36;
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + (p[0] / (values.length - 1) * W).toFixed(1) + ' ' + (H - 2 - (hi === lo ? .5 : (p[1] - lo) / (hi - lo)) * (H - 4)).toFixed(1)).join(' ');
+  return `<svg width="${W}" height="${H}" role="img" aria-label="30-day price trend"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+function showTip(b, x, y) {
+  const t = $('#tip');
+  const row = (k, v) => `<dt>${k}</dt><dd>${v}</dd>`;
+  t.innerHTML = `<b></b><div class="m"></div><dl>${row('Market price', money(b.price))}${row('Lowest listing', money(b.low))}`
+    + row('1 day', pctText(b.d1)) + row('7 days', pctText(b.d7)) + row('30 days', pctText(b.d30))
+    + (b.units != null ? row('Sold today', b.units.toLocaleString() + ' boxes') + row('Dollar volume', money(b.dollars)) : '')
+    + row(b.preorder ? 'Releases' : 'Released', b.released) + `</dl>${spark(b.spark)}`;
+  t.querySelector('b').textContent = b.name;
+  t.querySelector('.m').textContent = b.set + (b.preorder ? ' · preorder' : '');
+  t.style.display = 'block';
+  const w = t.offsetWidth, h = t.offsetHeight;
+  t.style.left = Math.max(8, Math.min(x + 14, innerWidth - w - 8)) + 'px';
+  t.style.top = Math.max(8, Math.min(y + 14, innerHeight - h - 8)) + 'px';
+}
+function hideTip() { $('#tip').style.display = 'none'; }
+
+function renderMap(boxes) {
+  const root = $('#map'); root.replaceChildren();
+  for (const g of DATA.games) {
+    if (state.game !== 'all' && state.game !== g.key) continue;
+    const sec = el('section', 'game'); sec.append(el('h2', '', g.name));
+    for (const [key, title, note] of TIERS) {
+      if (key === 'vintage' && !g.vintageBefore) continue;
+      const list = boxes.filter(b => b.game === g.key && b.tier === key);
+      const wrap = el('div', 'tier'), h = el('h3', '', title + ' ');
+      const sub = key === 'vintage' ? `before ${g.vintageBefore.slice(0, 4)}` : note;
+      h.append(el('span', '', `${list.length} ${list.length === 1 ? "box" : "boxes"}${sub ? ' · ' + sub : ''}`)); wrap.append(h);
+      if (!list.length) wrap.append(el('div', 'empty', 'No boxes listed.'));
+      else {
+        const grid = el('div', 'grid');
+        // With volume data, the busiest boxes get larger tiles and lead the group.
+        let size = () => '';
+        if (DATA.hasVolume) {
+          const sorted = list.map(b => b.dollars ?? 0).sort((a, b) => b - a);
+          const big = sorted[Math.floor(sorted.length * .05)], mid = sorted[Math.floor(sorted.length * .2)];
+          size = b => (b.dollars ?? 0) > 0 && b.dollars >= big ? 's3' : (b.dollars ?? 0) > 0 && b.dollars >= mid ? 's2' : '';
+          list.sort((a, b) => (b.dollars ?? -1) - (a.dollars ?? -1));
+        }
+        for (const b of list) grid.append(tile(b, size(b)));
+        wrap.append(grid);
+      }
+      sec.append(wrap);
+    }
+    root.append(sec);
+  }
+}
+
+function renderTable(boxes) {
+  const cols = [['game', 'Game'], ['tier', 'Tier'], ['set', 'Set'], ['name', 'Box'], ['released', 'Released'], ['price', 'Market'], ['low', 'Low'],
+    ['d1', '1 day'], ['d7', '7 days'], ['d30', '30 days']].concat(DATA.hasVolume ? [['units', 'Sold'], ['dollars', 'Volume']] : []);
+  if (!cols.some(c => c[0] === state.sort[0])) state.sort = ['price', -1];
+  const [k, dir] = state.sort;
+  const rows = boxes.filter(b => state.game === 'all' || b.game === state.game).sort((a, b) => {
+    const x = a[k], y = b[k]; if (x == null) return 1; if (y == null) return -1;
+    return (typeof x === 'string' ? x.localeCompare(y) : x - y) * dir;
+  });
+  const t = $('#table'); t.replaceChildren();
+  const hr = el('tr');
+  for (const [key, label] of cols) {
+    const th = el('th'), b = el('button', '', label + (key === k ? (dir > 0 ? ' ▲' : ' ▼') : ''));
+    b.onclick = () => { state.sort = [key, key === k ? -dir : (['game', 'tier', 'set', 'name'].includes(key) ? 1 : -1)]; render(); };
+    th.append(b); hr.append(th);
+  }
+  t.append(hr);
+  const gname = Object.fromEntries(DATA.games.map(g => [g.key, g.name])), tname = Object.fromEntries(TIERS.map(x => [x[0], x[1]]));
+  for (const b of rows) {
+    const tr = el('tr');
+    tr.append(el('td', '', gname[b.game]), el('td', '', tname[b.tier]), el('td', '', b.set));
+    const name = el('td'), a = el('a', '', b.name); a.href = b.url; a.target = '_blank'; a.rel = 'noopener'; name.append(a); tr.append(name);
+    tr.append(el('td', '', b.released), el('td', '', money(b.price)), el('td', '', money(b.low)));
+    for (const p of ['d1', 'd7', 'd30']) {
+      const td = el('td'), key = bin(b[p], p);
+      if (key) { const sw = el('span', 'sw'); sw.style.background = `var(${key})`; td.append(sw); }
+      td.append(pctText(b[p])); tr.append(td);
+    }
+    if (DATA.hasVolume) tr.append(el('td', '', b.units == null ? '—' : b.units.toLocaleString()), el('td', '', money(b.dollars)));
+    t.append(tr);
+  }
+}
+
+function render() {
+  legend();
+  const boxes = DATA.boxes.slice();
+  $('#map').hidden = state.view !== 'map'; $('#tableWrap').hidden = state.view !== 'table';
+  if (state.view === 'map') renderMap(boxes); else renderTable(boxes);
+  const have = DATA.boxes.filter(b => b[state.period] != null).length;
+  const n = $('#notice'), msgs = [];
+  if (!have) msgs.push(`No ${LABEL[state.period]} change yet: this needs ${state.period === 'd1' ? 'two days' : state.period === 'd7' ? 'a week' : 'a month'} of stored prices (${DATA.historyDays} day${DATA.historyDays === 1 ? '' : 's'} so far). Tiles show the current market price until then.`);
+  if (!DATA.hasVolume) msgs.push('Sales volume is not connected, so every tile is the same size.');
+  n.hidden = !msgs.length; n.textContent = msgs.join(' ');
+}
+
+async function load() {
+  // Preview builds inline the data; the deployed site reads the nightly data.json.
+  DATA = window.__DATA__ || await fetch('data.json', { cache: 'no-cache' }).then(r => r.json());
+  const asOf = new Date(DATA.asOf.replace(/\+0000$/, 'Z'));
+  $('#sub').textContent = `${DATA.boxes.length} sealed booster boxes across ${DATA.games.length} games · prices as of ${asOf.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })} · updates once a day`;
+  $('#cuts').textContent = DATA.games.filter(g => g.vintageBefore).map(g => `${g.vintageBefore.slice(0, 4)} for ${g.name}`).join(' and ');
+  for (const g of DATA.games) { const b = el('button', '', g.name); b.dataset.v = g.key; b.setAttribute('aria-pressed', 'false'); $('#game').append(b); }
+  seg('#period', 'period'); seg('#game', 'game'); seg('#view', 'view');
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
+  render();
+}
+load().catch(e => { $('#sub').textContent = 'Could not load prices: ' + e.message; });
+</script>
+</body>
+</html>
