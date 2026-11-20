@@ -23,7 +23,7 @@ const PACE_MS = Number(process.env.EBAY_PACE_MS ?? 250);
 const MIN_PRICE = 60;        // below this it is packs, empty boxes or accessories
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-const id = process.env.EBAY_CLIENT_ID, secret = process.env.EBAY_CLIENT_SECRET;
+const id = (process.env.EBAY_CLIENT_ID || '').trim(), secret = (process.env.EBAY_CLIENT_SECRET || '').trim();
 if (!id || !secret) {
   await rm(OUT, { force: true });
   console.log('No eBay keys set; skipping eBay asking prices.');
@@ -38,7 +38,11 @@ const tokenRes = await fetch(`${API}/identity/v1/oauth2/token`, {
   headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: 'Basic ' + Buffer.from(`${id}:${secret}`).toString('base64') },
   body: 'grant_type=client_credentials&scope=' + encodeURIComponent('https://api.ebay.com/oauth/api_scope'),
 });
-if (!tokenRes.ok) throw new Error(`eBay token request failed: ${tokenRes.status} ${(await tokenRes.text()).slice(0, 200)}`);
+if (!tokenRes.ok) {
+  // Format checks only; no part of either key is printed.
+  console.log(`Key format check: client ID is a production key: ${/-PRD-/.test(id)}; secret starts with PRD-: ${secret.startsWith('PRD-')}; secret length: ${secret.length}; secret looks like a Dev ID: ${/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(secret)}`);
+  throw new Error(`eBay token request failed: ${tokenRes.status} ${(await tokenRes.text()).slice(0, 200)}`);
+}
 const { access_token } = await tokenRes.json();
 
 const items = [];
