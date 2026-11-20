@@ -47,12 +47,13 @@ jobs:
           node scripts/sync.mjs --build
 
       # Skipped automatically until the EBAY_CLIENT_ID and EBAY_CLIENT_SECRET secrets exist.
+      # Never fails the job: a failed step (even with continue-on-error) makes the Pages upload
+      # action skip its internal steps, so the site would not publish. Failures show as a warning.
       - name: eBay asking prices
-        continue-on-error: true
         env:
           EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
           EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
-        run: node scripts/ebay.mjs
+        run: node scripts/ebay.mjs || echo "::warning::eBay asking prices failed; publishing without them. See the log above."
 
       - name: Save data
         run: |
