@@ -14,7 +14,7 @@ import { readFile, writeFile, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { verifyListing, queryFor } from './ebay-rules.mjs';
+import { verifyListing, queryFor, conflictsFor } from './ebay-rules.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const API = process.env.EBAY_API_BASE || 'https://api.ebay.com';
@@ -32,6 +32,8 @@ if (!id || !secret) {
 if (!existsSync(path.join(ROOT, 'site/data.json'))) throw new Error('Run scripts/sync.mjs first.');
 const data = JSON.parse(await readFile(path.join(ROOT, 'site/data.json'), 'utf8'));
 const targets = data.boxes.filter(b => b.price == null && !b.preorder);
+const setsByGame = {};
+for (const b of data.boxes) (setsByGame[b.game] ??= []).push(b.set);
 
 const tokenRes = await fetch(`${API}/identity/v1/oauth2/token`, {
   method: 'POST',
@@ -57,13 +59,14 @@ for (const box of targets) {
     headers: { Authorization: `Bearer ${access_token}`, 'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US' },
   });
   calls++;
+  const conflicts = conflictsFor(box, setsByGame[box.game]);
   if (!res.ok) { failed++; if (res.status === 429 || failed > 10) throw new Error(`eBay search failed: ${res.status}`); continue; }
   const found = (await res.json()).itemSummaries ?? [];
   const ok = found.map(l => {
     const price = Number(l.price?.value), ship = l.shippingOptions?.[0];
     const shipping = ship?.shippingCostType === 'FIXED' ? Number(ship.shippingCost?.value ?? 0) : null;
     return { l, price, shipping, total: price + (shipping ?? 0) };
-  }).filter(x => x.l.price?.currency === 'USD' && verifyListing(box, x.l)).sort((a, b) => a.total - b.total);
+  }).filter(x => x.l.price?.currency === 'USD' && verifyListing(box, x.l, conflicts)).sort((a, b) => a.total - b.total);
   if (!ok.length) continue;
   // Drop stragglers far below the pack: a "box" at a third of the typical ask is almost never a sealed box.
   const mid = ok[Math.floor(ok.length / 2)].total;
