@@ -46,7 +46,13 @@ export function verifyListing(box, listing, conflicts = []) {
   const words = norm(setName(box)).trim().split(' ').filter(w => w.length >= 3 && !STOP.has(w));
   if (!has(title, setName(box)) && !(words.length && words.every(w => sq.includes(w)))) return false;
   if (!words.length && / (base set|set) \d /.test(t)) return false;            // "Base Set 2"
-  if (conflicts.some(c => has(title, c))) return false;
+  // another set is named, in full or by most of its distinctive words ("Cmdr Legends Battle for Baldur's Gate")
+  const ownWords = new Set(norm(setName(box)).trim().split(' '));
+  if (conflicts.some(c => {
+    if (has(title, c)) return true;
+    const extra = norm(c).trim().split(' ').filter(w => w.length >= 3 && !STOP.has(w) && !ownWords.has(w));
+    return extra.length >= 2 && extra.filter(w => t.includes(` ${w} `)).length / extra.length >= 0.6;
+  })) return false;
   // a title year well after release means a different product
   const year = Number((box.released || '').slice(0, 4));
   if (year && (title.match(/\b(199\d|20[0-3]\d)\b/g) || []).some(y => Number(y) > year + 1)) return false;
