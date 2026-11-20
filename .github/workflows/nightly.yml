@@ -67,5 +67,12 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: site
+      # GitHub's artifact lookup is occasionally not ready right after upload; retry once.
       - id: deploy
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
+      - if: steps.deploy.outcome == 'failure'
+        run: sleep 45
+      - id: deploy_retry
+        if: steps.deploy.outcome == 'failure'
         uses: actions/deploy-pages@v5
