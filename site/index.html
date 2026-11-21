@@ -302,7 +302,8 @@ function showTip(b, x, y) {
   const row = (key, val) => `<dt>${key}</dt><dd>${val}</dd>`;
   t.innerHTML = `<div class="hd"><div><b></b><div class="m"></div></div></div><div class="big"><span>${money(b.price)}</span><span class="chip">${k ? `<i style="background:var(${k})"></i>` : ''}${pctText(v)} <span style="font-weight:400;color:var(--ink-3)">${LABEL[state.period]}</span></span></div><dl>`
     + row('1 day', pctText(b.d1)) + row('7 days', pctText(b.d7)) + row('30 days', pctText(b.d30)) + row('Lowest listing', money(b.low)) + (b.mid != null ? row('Median listing', money(b.mid)) : '')
-    + (b.units != null ? row('Sold today', b.units.toLocaleString() + ' boxes') + row('Dollar volume', money(b.dollars)) : '')
+    + (b.units != null ? row('Sold ' + (DATA.volumeDay || 'yesterday'), b.units.toLocaleString() + ' boxes') + row('Dollar volume', money(b.dollars))
+      + (b.units7 != null ? row('Sold, last 7 days', b.units7.toLocaleString() + ' boxes') : '') : '')
     + row(b.preorder ? 'Releases' : 'Released', b.released) + `</dl>${spark(b.spark)}`;
   t.querySelector('b').textContent = b.name;
   t.querySelector('.hd').prepend(thumb(b));
