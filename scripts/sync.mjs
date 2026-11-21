@@ -126,7 +126,7 @@ async function build() {
   if (!catalog?.syncedAt) throw new Error('No catalog yet. Run a sync first.');
   const history = await readJson(P.history, {});
   const overrides = await readJson(P.overrides, {});
-  const volume = await readJson(P.volume, {}); // optional: { productId: { "YYYY-MM-DD": unitsSold } }
+  const vol = await readJson(P.volume, null); // optional: { day, units: { productId: n }, d7, d30 } from scripts/volume.mjs
   const day = catalog.syncedAt.slice(0, 10);
   const boxes = [];
   const skipped = [];
@@ -141,7 +141,7 @@ async function build() {
       const price = today[0];
       const spark = [];
       for (let i = 29; i >= 0; i--) spark.push(series[addDays(day, -i)]?.[0] ?? null);
-      const units = volume[b.id]?.[day] ?? null;
+      const units = vol?.units?.[b.id] ?? null;
       boxes.push({
         id: b.id, game: GAMES[g.cat].key, set: g.name, abbr: g.abbr, name: b.name,
         variant: variantOf(b.name), released, tier,
@@ -151,7 +151,8 @@ async function build() {
         d1: pct(price, priceAt(series, addDays(day, -1), 0)),
         d7: pct(price, priceAt(series, addDays(day, -7), 2)),
         d30: pct(price, priceAt(series, addDays(day, -30), 4)),
-        spark, units, dollars: units != null && price != null ? Math.round(units * price) : null,
+        spark, units, units7: vol?.d7?.[b.id] ?? null, units30: vol?.d30?.[b.id] ?? null,
+        dollars: units != null && price != null ? Math.round(units * price) : null,
         url: b.url,
       });
     }
@@ -161,7 +162,7 @@ async function build() {
   for (const s of Object.values(history)) for (const d of Object.keys(s)) days.add(d);
   await writeJson(P.out, {
     asOf: catalog.syncedAt, source: 'TCGplayer market prices via TCGCSV',
-    historyDays: days.size, hasVolume: boxes.some(b => b.units != null),
+    historyDays: days.size, hasVolume: boxes.some(b => b.units != null), volumeDay: vol?.day ?? null,
     games: Object.values(GAMES).map(g => ({ key: g.key, name: g.name, vintageBefore: g.vintageBefore })),
     boxes, skipped,
   });
