@@ -55,6 +55,16 @@ jobs:
           EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
         run: node scripts/ebay.mjs || echo "::warning::eBay asking prices failed; publishing without them. See the log above."
 
+      # TCGplayer daily units sold (collected with TCGplayer's permission) and an eBay Marketplace
+      # Insights access check. Sales numbers reach the site only when the repository variable
+      # PUBLISH_VOLUME is "true". Runs fully once a day; never fails the job.
+      - name: Sales volume
+        env:
+          PUBLISH_VOLUME: ${{ vars.PUBLISH_VOLUME }}
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+        run: (node scripts/volume.mjs && node scripts/sync.mjs --build) || echo "::warning::Sales volume step failed; publishing without it."
+
       - name: Save data
         run: |
           git config user.name "github-actions[bot]"
