@@ -2,9 +2,10 @@ name: Nightly price sync
 
 on:
   schedule:
-    # Every 4 hours. TCGCSV is only re-read when it has a new daily build (around 20:00 UTC);
-    # the other runs just refresh eBay listings, which may be shown for at most six hours.
-    - cron: '17 1,5,9,13,17,21 * * *'
+    # Hourly. GitHub starts scheduled runs late or skips them on quiet repositories, so asking
+    # often keeps eBay listings (which may be shown for at most six hours) on the page.
+    # TCGCSV is only re-read when it has a new daily build; sales volume runs once a day.
+    - cron: '17 * * * *'
   workflow_dispatch:
     inputs:
       full:
